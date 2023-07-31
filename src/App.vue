@@ -1,10 +1,48 @@
 <script setup>
 import { ref } from "vue";
 
+const items = [
+  {
+    main: "Umiejętności",
+    subMenu: ["JavaScript", "React", "HTML & CSS"],
+    id: 1,
+  },
+  {
+    main: "Wykształcenie",
+    subMenu: ["Uniwersytet Warszawski", "Politechnika Warszawska"],
+    id: 2,
+  },
+  {
+    main: "Hobby",
+    subMenu: [
+      "Wioślarstwo",
+      "Uprawa warzyw i ziół",
+      "Pieczenie chleba na zakwasie",
+    ],
+    id: 3,
+  },
+  {
+    main: "Kontakt",
+    subMenu: ["789 - 345 - 117"],
+    id: 4,
+  },
+];
+
 const isOpen = ref(false);
+
+const activeItem = ref(null);
 
 const showMenu = () => {
   isOpen.value = !isOpen.value;
+  activeItem.value = null;
+};
+
+const setActiveItem = (item) => {
+  if (activeItem.value === item.id) {
+    activeItem.value = null;
+  } else {
+    activeItem.value = item.id;
+  }
 };
 </script>
 
@@ -39,18 +77,30 @@ const showMenu = () => {
       </div>
     </nav>
     <section class="menu" :class="{ active: isOpen, closed: !isOpen }">
-      <div class="item">
-        <h3>Doświadczenie</h3>
-      </div>
-      <div class="item">
-        <h3>Wykształcenie</h3>
-      </div>
-      <div class="item">
-        <h3>Hobby</h3>
-      </div>
-      <div class="item">
-        <h3>Kontakt</h3>
-      </div>
+      <ul>
+        <li
+          v-for="item in items"
+          class="item"
+          :class="{ active: item.id === activeItem }"
+          @click="setActiveItem(item)"
+          :key="item.id"
+        >
+          <span>
+            {{ item.main }}
+          </span>
+          <transition name="subMenu" mode="in-out">
+            <ul v-if="item.id === activeItem">
+              <li
+                v-for="subitem in item.subMenu"
+                class="subitem"
+                :key="subitem"
+              >
+                {{ subitem }}
+              </li>
+            </ul>
+          </transition>
+        </li>
+      </ul>
     </section>
     <section class="hero">
       <div class="text">
@@ -63,8 +113,6 @@ const showMenu = () => {
 </template>
 
 <style scoped>
-#app {
-}
 .home {
   position: relative;
   height: 100%;
@@ -92,9 +140,6 @@ const showMenu = () => {
   background-color: #f3f4f6;
   position: absolute;
   left: -4px;
-  /* top: -4px;
-  left: -4px; */
-  /* transform: translateX(-50%); */
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -107,11 +152,8 @@ const showMenu = () => {
   position: absolute;
   top: 0;
   left: -300px;
-  /* margin-right: 100%; */
   min-height: 100%;
   width: 300px;
-  display: flex;
-  flex-direction: column;
   gap: 20px;
   background-color: #fff;
   box-shadow: 18px 1px 24px -12px rgba(231, 231, 231, 1);
@@ -126,9 +168,54 @@ const showMenu = () => {
 }
 
 .menu .item {
-  cursor: pointer;
-  padding-left: 12px;
+  display: block;
+  width: 100%;
+
+  margin: 0 auto 16px;
+  padding: 8px 12px;
+  transition: 0.4s;
 }
+
+.menu .item span {
+  cursor: pointer;
+  display: block;
+  padding: 8px 12px;
+  transition: 0.2s;
+}
+
+.menu .item span:hover {
+  background-color: var(--color-background-soft);
+  border-radius: 4px;
+}
+
+.menu .item.active span {
+  font-weight: bold;
+  font-size: 22px;
+}
+.menu .item .subitem {
+  margin: 0 8px;
+  padding: 12px 12px;
+  transition: 0.4s;
+}
+
+.subMenu-enter-active {
+  transition: all 0.3s ease;
+}
+.subMenu-enter,
+.subMenu-leave-to {
+  opacity: 0;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul li span {
+  font-size: 20px;
+}
+
 .hero {
   flex-grow: 1;
   display: flex;
@@ -140,31 +227,4 @@ const showMenu = () => {
   flex-direction: column;
   gap: 1rem;
 }
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (max-width: 1024px) {
-  .menu.active {
-    /* width: 100%; */
-  }
-}
-
-/* @media (min-width: 1024px) {
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
-} */
 </style>
